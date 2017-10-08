@@ -3,27 +3,31 @@
 (require 2htdp/image)
 (require 2htdp/universe)
 
-(define start (list (bitmap/file "/tmp/rainbows.png") 0))
 
-(define (todraw w) (first w))
+;; make sure you run rainbows.rkt before running this program
+(define start (bitmap/file "/tmp/rainbows.png"))
+(define w (image-width start))
+(define h (image-height start))
 
-; make MOVEMENT equal to the pixel size you want to move by
+(define (todraw world) world)
 
-(define MOVEMENT 3)
+; make M equal to the pixel size you want to move by
 
-;                                     x         y                              w                             h
-(define (move-down w) (above  (freeze 0         (- (image-height w) MOVEMENT)  (image-width w)               MOVEMENT                      w) 
-                              (freeze 0         0                              (image-width w)               (- (image-height w) MOVEMENT) w)))
+(define M 2)
 
-;                                     x         y                              w                             h
-(define (move-left w) (beside (freeze MOVEMENT  0                              (- (image-width w) MOVEMENT)  (image-height w)              w) 
-                              (freeze 0         0                              MOVEMENT                      (image-height w)              w))) 
+;                                         x        y        w        h        image
+(define (move-down world) (above  (freeze 0        (- h M)  w        M        world)
+                                  (freeze 0        0        w        (- h M)  world)))
 
-
-(define (ontick w)
-  (list (move-down (move-left (first w))) 0))
+;                                         x        y        w        h        image
+(define (move-left world) (beside (freeze M        0        (- w M)  h        world)
+                                  (freeze 0        0        M        h        world)))
 
 
-(big-bang start 
+(define (ontick world)
+  (move-down (move-left world)))
+
+
+(big-bang start
           [to-draw todraw]
           [on-tick ontick])
